@@ -1,0 +1,14 @@
+{application, chatty,
+ [
+  {description, "chatty: discussion system (redis and riak backed)"},
+  {vsn, "0.3"},
+  {modules, []},
+  {registered, [chatty_sup]},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  riak_pool
+                 ]},
+  {mod, {chatty_app, []}},
+  {env, []}
+ ]}.
