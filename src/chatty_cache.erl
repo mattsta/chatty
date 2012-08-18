@@ -40,8 +40,8 @@ resolve_tree_json(TreeId) ->
   JsonMapTree = chatty:comment_tree_map(PreTree, fun node_to_map/1),
   iolist_to_binary(mochijson2:encode(JsonMapTree)).
 
-node_to_map({Uid, TS, Replaced, VoteCount, CommentText, Children}) ->
-  [{uid, Uid}, {ts, TS}, {vc, VoteCount}, {text, CommentText},
+node_to_map({Key, Uid, TS, Replaced, VoteCount, CommentText, Children}) ->
+  [{id, Key}, {uid, Uid}, {ts, TS}, {vc, VoteCount}, {text, CommentText},
    {replaced, Replaced}, {children, Children}].
 
 %%%----------------------------------------------------------------------

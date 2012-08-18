@@ -101,7 +101,8 @@ comment_tree_map([{Key, VoteCount, Children} | T], Fun, Accum)
                    [] -> [];
                     _ -> comment_tree_map(Children, Fun)
               end,
-  Transformed = Fun({Uid, TS, ReplacedBy, VoteCount, CommentText, Childrens}),
+  Transformed = Fun({Key, Uid, TS, ReplacedBy,
+                     VoteCount, CommentText, Childrens}),
   comment_tree_map(T, Fun, [Transformed | Accum]);
 comment_tree_map([], _, Accum) when is_list(Accum) ->
   lists:reverse(Accum).
