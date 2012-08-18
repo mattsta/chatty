@@ -95,15 +95,18 @@ comment_tree_map(Tree, NodeFun) when is_function(NodeFun) ->
 
 comment_tree_map([{Key, VoteCount, Children} | T], Fun, Accum)
     when is_function(Fun) andalso is_list(Accum) ->
-  {Uid, TS, ReplacedBy, CommentText} = chatty_cache:comment(Key),
-  Childrens = case Children of
-                cycle -> [];
-                   [] -> [];
-                    _ -> comment_tree_map(Children, Fun)
-              end,
-  Transformed = Fun({Key, Uid, TS, ReplacedBy,
-                     VoteCount, CommentText, Childrens}),
-  comment_tree_map(T, Fun, [Transformed | Accum]);
+  case chatty_cache:comment(Key) of
+    notfound -> comment_tree_map(T, Fun, [null | Accum]);
+    {Uid, TS, ReplacedBy, CommentText} ->
+      Childrens = case Children of
+                    cycle -> [];
+                       [] -> [];
+                        _ -> comment_tree_map(Children, Fun)
+                  end,
+      Transformed = Fun({Key, Uid, TS, ReplacedBy,
+                         VoteCount, CommentText, Childrens}),
+      comment_tree_map(T, Fun, [Transformed | Accum])
+  end;
 comment_tree_map([], _, Accum) when is_list(Accum) ->
   lists:reverse(Accum).
 
