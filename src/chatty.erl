@@ -29,6 +29,7 @@ discussion_object_new(Owner) ->
 % Expire the tree cache after this comment posts
 comment({RootTreeId, ParentId}, CommentId, UserId, CommentText) ->
   comment(ParentId, CommentId, UserId, CommentText, now()),
+  chatty_cache:comment_tree_expire(ParentId),
   chatty_cache:comment_tree_expire(RootTreeId);
 % Just add the comment without expiring the tree cache
 comment(ParentId, CommentId, UserId, CommentText) ->
@@ -55,6 +56,7 @@ comment(ParentId, CommentId, UserId, CommentText, TS, ExtraMetadata)
 update_comment({RootTreeId, ParentId}, CommentId,
     UserId, CommentText, OldCommentId) ->
   update_comment(ParentId, CommentId, UserId, CommentText, OldCommentId, now()),
+  chatty_cache:comment_tree_expire(ParentId),
   chatty_cache:comment_tree_expire(RootTreeId);
 % Just update the comment without expiring the tree cache
 update_comment(ParentId, CommentId, UserId, CommentText, OldCommentId) ->
