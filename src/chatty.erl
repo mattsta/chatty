@@ -87,6 +87,19 @@ update_story(BoardId, StoryId, UserId, CommentText, OldCommentId, TS) ->
 %  • add comment -> list of parents map (for relocatable comments)
 
 %%%----------------------------------------------------------------------
+%%% Reformaters
+%%%----------------------------------------------------------------------
+md(Text) ->
+  run_if_pid(sundown, mochiweb_html:escape(Text)).
+
+-compile({inline, [{run_if_pid, 2}]}).
+run_if_pid(Name, Content) when is_atom(Name) ->
+  case whereis(Name) of
+    N when is_pid(N) -> stdinout:send(N, Content);
+                   _ -> Content
+  end.
+
+%%%----------------------------------------------------------------------
 %%% Read Comments
 %%%----------------------------------------------------------------------
 comments(ParentId) ->
@@ -106,7 +119,7 @@ comment_tree_map([{Key, VoteCount, Children} | T], Fun, Accum)
                         _ -> comment_tree_map(Children, Fun)
                   end,
       Transformed = Fun({Key, Uid, TS, ReplacedBy,
-                         VoteCount, CommentText, Childrens}),
+                         VoteCount, md(CommentText), Childrens}),
       comment_tree_map(T, Fun, [Transformed | Accum])
   end;
 comment_tree_map([], _, Accum) when is_list(Accum) ->
