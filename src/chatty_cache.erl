@@ -38,7 +38,8 @@ resolve_tree(TreeId) ->
 resolve_tree_json(TreeId) ->
   PreTree = rghost:object_resolve_to_height(TreeId, 1000),
   JsonMapTree = chatty:comment_tree_map(PreTree, fun node_to_map/1),
-  iolist_to_binary(mochijson2:encode(JsonMapTree)).
+  Encoder = mochijson2:encoder([{utf8, true}]),
+  iolist_to_binary(Encoder(JsonMapTree)).
 
 node_to_map({Key, Uid, TS, Replaced, VoteCount, CommentText, Children}) ->
   [{id, Key}, {uid, Uid}, {ts, TS}, {vc, VoteCount}, {text, CommentText},
