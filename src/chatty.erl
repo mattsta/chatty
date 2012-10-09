@@ -5,7 +5,8 @@
 -export([update_story/5, update_story/6]).
 -export([comments/1]).
 -export([comment_tree_map/2]).
--export([upvote/3, downvote/3]).
+-export([upvote/3, upvote/4]).
+-export([downvote/3, downvote/4]).
 -export([upvote_story/3, downvote_story/3]).
 -export([top_n_hot/2, top_n_confidence/2, top_n_controversy/2]).
 
@@ -129,15 +130,21 @@ comment_tree_map([], _, Accum) when is_list(Accum) ->
 %%% Voting
 %%%----------------------------------------------------------------------
 upvote(ParentId, CommentId, UserId) ->
+  upvote(ParentId, CommentId, UserId, 1).
+
+upvote(ParentId, CommentId, UserId, Weight) ->
   % do any checks for banned from upvoting?
-  U = rghost:vote(up, ParentId, CommentId, UserId),
+  U = rghost:vote(up, Weight, ParentId, CommentId, UserId),
   update_rank_controversy(ParentId, CommentId),
   update_rank_confidence(ParentId, CommentId),
   U.
 
 downvote(ParentId, CommentId, UserId) ->
+  downvote(ParentId, CommentId, UserId, 1).
+
+downvote(ParentId, CommentId, UserId, Weight) ->
   % do any checks for banned from downvoting?
-  D = rghost:vote(down, ParentId, CommentId, UserId),
+  D = rghost:vote(down, Weight, ParentId, CommentId, UserId),
   update_rank_confidence(ParentId, CommentId),
   update_rank_controversy(ParentId, CommentId),
   D.
