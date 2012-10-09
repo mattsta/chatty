@@ -135,8 +135,7 @@ upvote(ParentId, CommentId, UserId) ->
 upvote(ParentId, CommentId, UserId, Weight) ->
   % do any checks for banned from upvoting?
   U = rghost:vote(up, Weight, ParentId, CommentId, UserId),
-  update_rank_controversy(ParentId, CommentId),
-  update_rank_confidence(ParentId, CommentId),
+  comment_vote_common(ParentId, CommentId),
   U.
 
 downvote(ParentId, CommentId, UserId) ->
@@ -145,19 +144,27 @@ downvote(ParentId, CommentId, UserId) ->
 downvote(ParentId, CommentId, UserId, Weight) ->
   % do any checks for banned from downvoting?
   D = rghost:vote(down, Weight, ParentId, CommentId, UserId),
+  comment_vote_common(ParentId, CommentId),
+  D.
+
+comment_vote_common(ParentId, CommentId) ->
   update_rank_confidence(ParentId, CommentId),
   update_rank_controversy(ParentId, CommentId),
-  D.
+  chatty_cache:comment_tree_expire(ParentId),
+  chatty_cache:comment_expire(CommentId).
 
 upvote_story(BoardId, StoryId, UserId) ->
   U = upvote(BoardId, StoryId, UserId),
-  update_rank_hot(BoardId, StoryId),
+  story_vote_common(BoardId, StoryId),
   U.
 
 downvote_story(BoardId, StoryId, UserId) ->
   D = downvote(BoardId, StoryId, UserId),
-  update_rank_hot(BoardId, StoryId),
+  story_vote_common(BoardId, StoryId),
   D.
+
+story_vote_common(BoardId, StoryId) ->
+  update_rank_hot(BoardId, StoryId).
 
 update_rank_hot(BoardId, StoryId) ->
   {_, TS, _, _} = chatty_cache:comment(StoryId),
