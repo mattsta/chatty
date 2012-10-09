@@ -15,10 +15,13 @@ supname(Name) ->
   list_to_atom(atom_to_list(Name) ++ "_sup").
 
 er_sup(Name, IP, Port) ->
-  SupName = supname(Name),
-  {SupName,
-   {er_pool, start_link, [Name, IP, Port]},
-    permanent, 5000, worker, [er_pool]}.
+  case whereis(Name) of
+    undefined -> SupName = supname(Name),
+                 {SupName,
+                  {er_pool, start_link, [Name, IP, Port]},
+                   permanent, 5000, worker, [er_pool]};
+            _ -> []
+  end.
 
 cache_if_no_cache(Name, FunName) ->
   case whereis(Name) of

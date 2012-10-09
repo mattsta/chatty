@@ -56,30 +56,30 @@ chatty_test_() ->
 %%%----------------------------------------------------------------------
 create_question_1() ->
   % courseA -> 1
-  CommentId = chatty:comment(<<"courseA">>, <<"1">>,
+  CommentId = chatty:comment(<<"courseA">>, <<"TE1">>,
                              <<"userID">>, <<"commentTextQuestion1">>, ?TS),
-  ?assertEqual(<<"1">>, CommentId).
+  ?assertEqual(<<"TE1">>, CommentId).
 
 create_reply_to_question_1() ->
   % courseA -> 1 -> 2
   CommentId =
-    chatty:comment(<<"1">>, <<"2">>, <<"userID2">>, 
+    chatty:comment(<<"TE1">>, <<"TE2">>, <<"userID2">>,
                    <<"replyToQuestion1">>, ?TS),
-  ?assertEqual(<<"2">>, CommentId).
+  ?assertEqual(<<"TE2">>, CommentId).
 
 replace_question_1_text() ->
   % courseA -> 3 -> 2
   % Here, (courseA, 1) ceases to exist and is replaced by (courseA, 3)
   CommentId =
-    chatty:update_story(<<"courseA">>, <<"3">>,
+    chatty:update_story(<<"courseA">>, <<"TE3">>,
                         <<"userID">>, <<"replacedCommentTextQuestion1">>,
-                        <<"1">>, ?TS),
-  ?assertEqual(<<"3">>, CommentId).
+                        <<"TE1">>, ?TS),
+  ?assertEqual(<<"TE3">>, CommentId).
 
 upvote_question_1() ->
   % courseA -> 3 -> 2
-  OriginalScore = rghost:vote_total(<<"courseA">>, <<"3">>),
-  NewScore = chatty:upvote_story(<<"courseA">>, <<"3">>, <<"userID">>),
+  OriginalScore = rghost:vote_total(<<"courseA">>, <<"TE3">>),
+  NewScore = chatty:upvote_story(<<"courseA">>, <<"TE3">>, <<"userID">>),
   ?assertEqual(<<"0">>, OriginalScore),
   ?assertEqual(1, NewScore).
 
@@ -87,36 +87,36 @@ replace_question_1_again() ->
   % courseA -> 4 -> 2
   % Here, (courseA, 3) ceases to exist and is replaced by (courseA, 4)
   CommentId =
-    chatty:update_story(<<"courseA">>, <<"4">>,
+    chatty:update_story(<<"courseA">>, <<"TE4">>,
                         <<"userID">>, <<"replacedCommentTextQuestion1">>,
-                        <<"3">>, ?TS),
-  ?assertEqual(<<"4">>, CommentId).
+                        <<"TE3">>, ?TS),
+  ?assertEqual(<<"TE4">>, CommentId).
 
 upvote_question_1_again() ->
   % courseA -> 4 -> 2
-  OriginalScore = rghost:vote_total(<<"courseA">>, <<"4">>),
-  NewScore = chatty:upvote_story(<<"courseA">>, <<"4">>, <<"userID">>),
+  OriginalScore = rghost:vote_total(<<"courseA">>, <<"TE4">>),
+  NewScore = chatty:upvote_story(<<"courseA">>, <<"TE4">>, <<"userID">>),
   ?assertEqual(<<"1">>, OriginalScore),
   ?assertEqual(2, NewScore).
 
 reply_to_reply_1() ->
   % courseA -> 4 -> 2 -> 5
   CommentId =
-    chatty:comment(<<"2">>, <<"5">>, <<"userID2">>,
+    chatty:comment(<<"TE2">>, <<"TE5">>, <<"userID2">>,
                    <<"repToRplToQuestion1">>, ?TS),
-  ?assertEqual(<<"5">>, CommentId).
+  ?assertEqual(<<"TE5">>, CommentId).
 
 upvote_reply_to_reply_to_question_1() ->
   % courseA -> 4 -> 2 -> 5
-  OriginalScore = rghost:vote_total(<<"2">>, <<"5">>),
-  NewScore = chatty:upvote(<<"2">>, <<"5">>, <<"userID">>),
+  OriginalScore = rghost:vote_total(<<"TE2">>, <<"TE5">>),
+  NewScore = chatty:upvote(<<"TE2">>, <<"TE5">>, <<"userID">>, 1),
   ?assertEqual(<<"0">>, OriginalScore),
   ?assertEqual(1, NewScore).
 
 comment_tree() ->
   % courseA -> 4 -> 2 -> 5
   CommentTreeJson = chatty:comments(courseA),
-  CommentTreeExpected = <<"[{\"id\":\"4\",\"uid\":\"userID\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"2\",\"text\":\"replacedCommentTextQuestion1\",\"replaced\":\"3\",\"children\":[{\"id\":\"2\",\"uid\":\"userID2\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"0\",\"text\":\"replyToQuestion1\",\"replaced\":[],\"children\":[{\"id\":\"5\",\"uid\":\"userID2\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"1\",\"text\":\"repToRplToQuestion1\",\"replaced\":[],\"children\":[]}]}]}]">>,
+  CommentTreeExpected = <<"[{\"id\":\"TE4\",\"uid\":\"userID\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"2\",\"text\":\"replacedCommentTextQuestion1\",\"replaced\":\"TE3\",\"children\":[{\"id\":\"TE2\",\"uid\":\"userID2\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"0\",\"text\":\"replyToQuestion1\",\"replaced\":[],\"children\":[{\"id\":\"TE5\",\"uid\":\"userID2\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"1\",\"text\":\"repToRplToQuestion1\",\"replaced\":[],\"children\":[]}]}]}]">>,
   ?assertEqual(CommentTreeExpected, CommentTreeJson).
 
 create_question_2() ->
@@ -137,17 +137,17 @@ upvote_question_2() ->
 question_ranks_hotness() ->
   % courseA -> {question2, 4}
   Hotness = chatty:top_n_hot(<<"courseA">>, 32),
-  ?assertEqual([<<"question2">>, <<"4">>], Hotness).
+  ?assertEqual([<<"question2">>, <<"TE4">>], Hotness).
 
 question_ranks_controversy() ->
   % courseA -> {question2, 4}
   Hotness = chatty:top_n_controversy(<<"courseA">>, 32),
-  ?assertEqual([<<"question2">>, <<"4">>], Hotness).
+  ?assertEqual([<<"question2">>, <<"TE4">>], Hotness).
 
 question_ranks_confidence() ->
   % courseA -> {question2, 4}
   Hotness = chatty:top_n_confidence(<<"courseA">>, 32),
-  ?assertEqual([<<"question2">>, <<"4">>], Hotness).
+  ?assertEqual([<<"question2">>, <<"TE4">>], Hotness).
 
 downvote_question_2() ->
   % courseA -> question2
@@ -163,17 +163,17 @@ downvote_question_2() ->
 question_ranks_after_downvote_hotness() ->
   % courseA -> {question2, 4}
   Hotness = chatty:top_n_hot(<<"courseA">>, 32),
-  ?assertEqual([<<"4">>, <<"question2">>], Hotness).
+  ?assertEqual([<<"TE4">>, <<"question2">>], Hotness).
 
 question_ranks_after_downvote_controversy() ->
   % courseA -> {question2, 4}
   Hotness = chatty:top_n_controversy(<<"courseA">>, 32),
-  ?assertEqual([<<"question2">>, <<"4">>], Hotness).
+  ?assertEqual([<<"question2">>, <<"TE4">>], Hotness).
 
 question_ranks_after_downvote_confidence() ->
   % courseA -> {question2, 4}
   Hotness = chatty:top_n_confidence(<<"courseA">>, 32),
-  ?assertEqual([<<"4">>, <<"question2">>], Hotness).
+  ?assertEqual([<<"TE4">>, <<"question2">>], Hotness).
 
 %%%----------------------------------------------------------------------
 %%% Set it up, tear it down
@@ -181,6 +181,7 @@ question_ranks_after_downvote_confidence() ->
 setup() ->
   application:start(er),
   er_pool:start_link(redis_ghost, "127.0.0.1", 6389),
+  er_pool:start_link(redis_chatty, "127.0.0.1", 6389),
   er:flushall(redis_ghost),
   application:start(riak_pool),
   poolboy:start_link([{name, {local, chatty}},
