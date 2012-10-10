@@ -34,11 +34,13 @@ init([]) ->
   TreeJsonCache = cache_if_no_cache(chatty_tree_json, resolve_tree_json),
   CommentCache = cache_if_no_cache(chatty_comment, comment_fetch),
   RedisChatty = er_sup(redis_chatty, "127.0.0.1", 6383),
+  RedisChattyGhost = er_sup(redis_chatty_ghost, "127.0.0.1", 6383),
 
   Processes = [TreeCache,
                TreeJsonCache,
                CommentCache,
-               RedisChatty],
+               RedisChatty,
+               RedisChattyGhost],
 
   Strategy = {one_for_one, 10, 10},
   {ok,

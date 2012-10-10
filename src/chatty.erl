@@ -21,7 +21,7 @@
 %%% New Discussions (basically a new discussion board entirely)
 %%%----------------------------------------------------------------------
 discussion_object_new(Owner) ->
-  rghost:object_create(Owner, Owner),
+  cghost:object_create(Owner, Owner),
   Owner.
 
 %%%----------------------------------------------------------------------
@@ -47,7 +47,7 @@ comment(ParentId, CommentId, UserId, CommentText, TS, ExtraMetadata)
   Metadata = dict:from_list([{<<"X-Riak-Meta">>, MetaProplist}]),
   Obj = riakc_obj:update_metadata(PreObj, Metadata),
   riak_pool:put(chatty, Obj),
-  rghost:object_parent(ParentId, CommentId),
+  cghost:object_parent(ParentId, CommentId),
   CommentId.
 
 %%%----------------------------------------------------------------------
@@ -66,7 +66,7 @@ update_comment(ParentId, CommentId, UserId, CommentText, OldCommentId) ->
 update_comment(ParentId, CommentId, UserId, CommentText, OldCommentId, TS) ->
   AdditionalMetadata = [{"replaced", OldCommentId}],
   comment(ParentId, CommentId, UserId, CommentText, TS, AdditionalMetadata),
-  rghost:object_rename(ParentId, OldCommentId, CommentId),
+  cghost:object_rename(ParentId, OldCommentId, CommentId),
   er:zrem(redis_chatty, key_rank_confidence(ParentId), OldCommentId),
   er:zrem(redis_chatty, key_rank_controversy(ParentId), OldCommentId),
   update_rank_controversy(ParentId, CommentId),
@@ -134,7 +134,7 @@ upvote(RootId, ParentId, CommentId, UserId) ->
 
 upvote(RootId, ParentId, CommentId, UserId, Weight) ->
   % do any checks for banned from upvoting?
-  U = rghost:vote(up, Weight, ParentId, CommentId, UserId),
+  U = cghost:vote(up, Weight, ParentId, CommentId, UserId),
   comment_vote_common(RootId, ParentId, CommentId),
   U.
 
@@ -143,7 +143,7 @@ downvote(RootId, ParentId, CommentId, UserId) ->
 
 downvote(RootId, ParentId, CommentId, UserId, Weight) ->
   % do any checks for banned from downvoting?
-  D = rghost:vote(down, Weight, ParentId, CommentId, UserId),
+  D = cghost:vote(down, Weight, ParentId, CommentId, UserId),
   comment_vote_common(RootId, ParentId, CommentId),
   D.
 
@@ -236,7 +236,7 @@ to_integer(N) when is_list(N) ->
 to_integer(N) when is_integer(N) -> N.
 
 updown(ParentId, CommentId) ->
-  {Ups, Downs} = rghost:votes_updown(ParentId, CommentId),
+  {Ups, Downs} = cghost:votes_updown(ParentId, CommentId),
   {to_integer(Ups), to_integer(Downs)}.
 
 score(Ups, Downs) when is_integer(Ups) andalso is_integer(Downs) ->

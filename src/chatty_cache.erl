@@ -32,11 +32,11 @@ comment_tree_expire(TreeId) ->
   ecache:dirty(chatty_tree, TreeId).
 
 resolve_tree(TreeId) ->
-  PreTree = rghost:object_resolve_to_height(TreeId, 1000),
+  PreTree = cghost:object_resolve_to_height(TreeId, 1000),
   chatty:comment_tree_map(PreTree, fun(X) -> X end).
 
 resolve_tree_json(TreeId) ->
-  PreTree = rghost:object_resolve_to_height(TreeId, 1000),
+  PreTree = cghost:object_resolve_to_height(TreeId, 1000),
   JsonMapTree = chatty:comment_tree_map(PreTree, fun node_to_map/1),
   Encoder = mochijson2:encoder([{utf8, true}]),
   iolist_to_binary(Encoder(JsonMapTree)).

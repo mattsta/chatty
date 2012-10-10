@@ -78,7 +78,7 @@ replace_question_1_text() ->
 
 upvote_question_1() ->
   % courseA -> 3 -> 2
-  OriginalScore = rghost:vote_total(<<"courseA">>, <<"TE3">>),
+  OriginalScore = cghost:vote_total(<<"courseA">>, <<"TE3">>),
   NewScore = chatty:upvote_story(<<"courseA">>, <<"TE3">>, <<"userID">>),
   ?assertEqual(<<"0">>, OriginalScore),
   ?assertEqual(1, NewScore).
@@ -94,7 +94,7 @@ replace_question_1_again() ->
 
 upvote_question_1_again() ->
   % courseA -> 4 -> 2
-  OriginalScore = rghost:vote_total(<<"courseA">>, <<"TE4">>),
+  OriginalScore = cghost:vote_total(<<"courseA">>, <<"TE4">>),
   NewScore = chatty:upvote_story(<<"courseA">>, <<"TE4">>, <<"userID">>),
   ?assertEqual(<<"1">>, OriginalScore),
   ?assertEqual(2, NewScore).
@@ -108,7 +108,7 @@ reply_to_reply_1() ->
 
 upvote_reply_to_reply_to_question_1() ->
   % courseA -> 4 -> 2 -> 5
-  OriginalScore = rghost:vote_total(<<"TE2">>, <<"TE5">>),
+  OriginalScore = cghost:vote_total(<<"TE2">>, <<"TE5">>),
   NewScore = chatty:upvote(<<"courseA">>, <<"TE2">>, <<"TE5">>, <<"userID">>, 1),
   ?assertEqual(<<"0">>, OriginalScore),
   ?assertEqual(1, NewScore).
@@ -127,7 +127,7 @@ create_question_2() ->
 
 upvote_question_2() ->
   % courseA -> question2
-  OriginalScore = rghost:vote_total(<<"courseA">>, <<"question2">>),
+  OriginalScore = cghost:vote_total(<<"courseA">>, <<"question2">>),
   NewScore = chatty:upvote_story(<<"courseA">>, <<"question2">>, <<"userID">>),
   NewerScore = chatty:upvote_story(<<"courseA">>, <<"question2">>, <<"userID">>),
   ?assertEqual(<<"0">>, OriginalScore),
@@ -151,7 +151,7 @@ question_ranks_confidence() ->
 
 downvote_question_2() ->
   % courseA -> question2
-  OriginalScore = rghost:vote_total(<<"courseA">>, <<"question2">>),
+  OriginalScore = cghost:vote_total(<<"courseA">>, <<"question2">>),
   NewScore = chatty:downvote_story(<<"courseA">>, <<"question2">>, <<"userID">>),
   NewerScore = chatty:downvote_story(<<"courseA">>, <<"question2">>, <<"userID">>),
   NewestScore = chatty:downvote_story(<<"courseA">>, <<"question2">>, <<"userID">>),
@@ -180,9 +180,10 @@ question_ranks_after_downvote_confidence() ->
 %%%----------------------------------------------------------------------
 setup() ->
   application:start(er),
-  er_pool:start_link(redis_ghost, "127.0.0.1", 6389),
+  er_pool:start_link(redis_chatty_ghost, "127.0.0.1", 6389),
   er_pool:start_link(redis_chatty, "127.0.0.1", 6389),
-  er:flushall(redis_ghost),
+  er:flushall(redis_chatty_ghost),
+  er:flushall(redis_chatty),
   application:start(riak_pool),
   poolboy:start_link([{name, {local, chatty}},
                       {worker_module, riak_pool_worker},
