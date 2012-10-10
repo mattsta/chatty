@@ -109,7 +109,7 @@ reply_to_reply_1() ->
 upvote_reply_to_reply_to_question_1() ->
   % courseA -> 4 -> 2 -> 5
   OriginalScore = rghost:vote_total(<<"TE2">>, <<"TE5">>),
-  NewScore = chatty:upvote(<<"TE2">>, <<"TE5">>, <<"userID">>, 1),
+  NewScore = chatty:upvote(<<"courseA">>, <<"TE2">>, <<"TE5">>, <<"userID">>, 1),
   ?assertEqual(<<"0">>, OriginalScore),
   ?assertEqual(1, NewScore).
 

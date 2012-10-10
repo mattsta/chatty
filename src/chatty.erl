@@ -5,8 +5,8 @@
 -export([update_story/5, update_story/6]).
 -export([comments/1]).
 -export([comment_tree_map/2]).
--export([upvote/3, upvote/4]).
--export([downvote/3, downvote/4]).
+-export([upvote/4, upvote/5]).
+-export([downvote/4, downvote/5]).
 -export([upvote_story/3, downvote_story/3]).
 -export([top_n_hot/2, top_n_confidence/2, top_n_controversy/2]).
 
@@ -129,37 +129,42 @@ comment_tree_map([], _, Accum) when is_list(Accum) ->
 %%%----------------------------------------------------------------------
 %%% Voting
 %%%----------------------------------------------------------------------
-upvote(ParentId, CommentId, UserId) ->
-  upvote(ParentId, CommentId, UserId, 1).
+upvote(RootId, ParentId, CommentId, UserId) ->
+  upvote(RootId, ParentId, CommentId, UserId, 1).
 
-upvote(ParentId, CommentId, UserId, Weight) ->
+upvote(RootId, ParentId, CommentId, UserId, Weight) ->
   % do any checks for banned from upvoting?
   U = rghost:vote(up, Weight, ParentId, CommentId, UserId),
-  comment_vote_common(ParentId, CommentId),
+  comment_vote_common(RootId, ParentId, CommentId),
   U.
 
-downvote(ParentId, CommentId, UserId) ->
-  downvote(ParentId, CommentId, UserId, 1).
+downvote(RootId, ParentId, CommentId, UserId) ->
+  downvote(RootId, ParentId, CommentId, UserId, 1).
 
-downvote(ParentId, CommentId, UserId, Weight) ->
+downvote(RootId, ParentId, CommentId, UserId, Weight) ->
   % do any checks for banned from downvoting?
   D = rghost:vote(down, Weight, ParentId, CommentId, UserId),
-  comment_vote_common(ParentId, CommentId),
+  comment_vote_common(RootId, ParentId, CommentId),
   D.
 
-comment_vote_common(ParentId, CommentId) ->
+comment_vote_common(RootId, ParentId, CommentId) ->
   update_rank_confidence(ParentId, CommentId),
   update_rank_controversy(ParentId, CommentId),
+  case RootId of
+          [] -> ok;
+    ParentId -> ok; % expired below
+           _ -> chatty_cache:comment_tree_expire(RootId)
+  end,
   chatty_cache:comment_tree_expire(ParentId),
   chatty_cache:comment_expire(CommentId).
 
 upvote_story(BoardId, StoryId, UserId) ->
-  U = upvote(BoardId, StoryId, UserId),
+  U = upvote(BoardId, BoardId, StoryId, UserId),
   story_vote_common(BoardId, StoryId),
   U.
 
 downvote_story(BoardId, StoryId, UserId) ->
-  D = downvote(BoardId, StoryId, UserId),
+  D = downvote(BoardId, BoardId, StoryId, UserId),
   story_vote_common(BoardId, StoryId),
   D.
 
