@@ -4,6 +4,7 @@
 -export([comment/4, comment/5, update_comment/5, update_comment/6]).
 -export([update_story/5, update_story/6]).
 -export([comments/1]).
+-export([comment_uid/1]).
 -export([comment_tree_map/2]).
 -export([upvote/4, upvote/5]).
 -export([downvote/4, downvote/5]).
@@ -125,6 +126,12 @@ comment_tree_map([{Key, VoteCount, Children} | T], Fun, Accum)
   end;
 comment_tree_map([], _, Accum) when is_list(Accum) ->
   lists:reverse(Accum).
+
+comment_uid(CommentId) ->
+  case chatty_cache:comment(CommentId) of
+    {Uid, _, _, _} -> Uid;
+          notfound -> none
+  end.
 
 %%%----------------------------------------------------------------------
 %%% Voting
