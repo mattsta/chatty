@@ -21,13 +21,19 @@
 %%%----------------------------------------------------------------------
 %%% Resolve a Comment Tree
 %%%----------------------------------------------------------------------
-comment_tree_json(TreeId) ->
+comment_tree_json(TreeId) when is_list(TreeId) ->
+  comment_tree_json(list_to_binary(TreeId));
+comment_tree_json(TreeId) when is_binary(TreeId) ->
   ecache:get(chatty_tree_json, TreeId).
 
-comment_tree_raw(TreeId) ->
+comment_tree_raw(TreeId) when is_list(TreeId) ->
+  comment_tree_raw(list_to_binary(TreeId));
+comment_tree_raw(TreeId) when is_binary(TreeId) ->
   ecache:get(chatty_tree, TreeId).
 
-comment_tree_expire(TreeId) ->
+comment_tree_expire(TreeId) when is_list(TreeId) ->
+  comment_tree_expire(list_to_binary(TreeId));
+comment_tree_expire(TreeId) when is_binary(TreeId) ->
   ecache:dirty(chatty_tree_json, TreeId),
   ecache:dirty(chatty_tree, TreeId).
 
