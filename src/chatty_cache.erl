@@ -3,6 +3,7 @@
 -export([resolve_tree/1]).
 -export([resolve_tree_json/1]).
 -export([comment/1, comment_expire/1, comment_fetch/1]).
+-export([json_hot/2, json_controversy/2, json_confidence/2]).
 
 -export([comment_tree_json/1, comment_tree_raw/1, comment_tree_expire/1]).
 
@@ -50,6 +51,28 @@ resolve_tree_json(TreeId) ->
 node_to_map({Key, Uid, TS, Replaced, VoteCount, CommentText, Children}) ->
   [{id, Key}, {uid, Uid}, {ts, TS}, {vc, VoteCount}, {text, CommentText},
    {replaced, Replaced}, {children, Children}].
+
+%%%----------------------------------------------------------------------
+%%% Board Jsons
+%%%----------------------------------------------------------------------
+json_hot(BoardId, N) ->
+  top_n_json(BoardId, N, fun chatty:top_n_hot/2).
+
+json_controversy(BoardId, N) ->
+  top_n_json(BoardId, N, fun chatty:top_n_controversy/2).
+
+json_confidence(BoardId, N) ->
+  top_n_json(BoardId, N, fun chatty:top_n_confidence/2).
+
+top_n_json(BoardId, N, Fun) ->
+  CommentIds = Fun(BoardId, N),
+  Comments = [{Id, chatty_cache:comment(Id)} || Id <- CommentIds],
+  % Vote Counts aren't available here -- we'd have to look them up again,
+  % but we don't really need them, do we?
+  FormattedComments =[[{uid, Uid}, {ts, TS}, {text, Text}, {id, Id}] ||
+                      {Id, {Uid, TS, _, Text}} <- Comments],
+  Encoder = mochijson2:encoder([{utf8, true}]),
+  iolist_to_binary(Encoder(FormattedComments)).
 
 %%%----------------------------------------------------------------------
 %%% Cache of Individual Comments
