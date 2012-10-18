@@ -13,6 +13,8 @@
 
 -export([score_confidence/2]).
 
+-export([md/1]).  % used by cache to auto-md things
+
 -define(BUCKET, <<"chatty">>).
 
 % this is: calendar:datetime_to_gregorian_seconds({{1970,1,1},{0,0,0}}).

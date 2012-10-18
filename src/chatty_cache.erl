@@ -69,7 +69,8 @@ top_n_json(BoardId, N, Fun) ->
   Comments = [{Id, chatty_cache:comment(Id)} || Id <- CommentIds],
   % Vote Counts aren't available here -- we'd have to look them up again,
   % but we don't really need them, do we?
-  FormattedComments =[[{uid, Uid}, {ts, TS}, {text, Text}, {id, Id}] ||
+  FormattedComments =[[{uid, Uid}, {ts, TS},
+                       {text, chatty:md(Text)}, {id, Id}] ||
                       {Id, {Uid, TS, _, Text}} <- Comments],
   Encoder = mochijson2:encoder([{utf8, true}]),
   iolist_to_binary(Encoder(FormattedComments)).
