@@ -53,14 +53,14 @@ comment_tree_expire(TreeId) when is_binary(TreeId) ->
   ecache:dirty(chatty_tree, {TreeId, 1}).       % only board entries
 
 resolve_tree({TreeId, DepthLimit}) when is_binary(TreeId) ->
-  io:format("Resolving tree: ~p~n", [{TreeId, DepthLimit}]),
+%  io:format("Resolving tree: ~p~n", [{TreeId, DepthLimit}]),
   PreTree = cghost:object_resolve_to_depth(TreeId, 2500, DepthLimit),
   chatty:comment_tree_map(PreTree, fun(X) -> X end);
 resolve_tree(TreeId) ->
   resolve_tree({TreeId, 1000}).
 
 resolve_tree_json({TreeId, DepthLimit}) when is_binary(TreeId) ->
-  io:format("Resolving tree JSON: ~p~n", [{TreeId, DepthLimit}]),
+%  io:format("Resolving tree JSON: ~p~n", [{TreeId, DepthLimit}]),
   PreTree = cghost:object_resolve_to_depth(TreeId, 2500, DepthLimit),
   JsonMapTree = chatty:comment_tree_map(PreTree, fun node_to_map/1),
   Encoder = mochijson2:encoder([{utf8, true}]),
