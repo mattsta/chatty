@@ -27,18 +27,22 @@ comment_tree_json({TreeId, N}) when is_list(TreeId) ->
 comment_tree_json(TreeId) when is_list(TreeId) ->
   comment_tree_json(list_to_binary(TreeId));
 comment_tree_json({TreeId, N}) when is_binary(TreeId) ->
-  ecache:get(chatty_tree_json, {TreeId, N});
+  resolve_tree_json({TreeId, N});
+%  ecache:get(chatty_tree_json, {TreeId, N});
 comment_tree_json(TreeId) when is_binary(TreeId) ->
-  ecache:get(chatty_tree_json, TreeId).
+  resolve_tree_json(TreeId).
+%  ecache:get(chatty_tree_json, TreeId).
 
 comment_tree_raw({TreeId, N}) when is_list(TreeId) ->
   comment_tree_raw({list_to_binary(TreeId), N});
 comment_tree_raw(TreeId) when is_list(TreeId) ->
   comment_tree_raw(list_to_binary(TreeId));
 comment_tree_raw({TreeId, N}) when is_binary(TreeId) ->
-  ecache:get(chatty_tree, {TreeId, N});
+%  ecache:get(chatty_tree, {TreeId, N});
+  resolve_tree({TreeId, N});
 comment_tree_raw(TreeId) when is_binary(TreeId) ->
-  ecache:get(chatty_tree, TreeId).
+  resolve_tree(TreeId).
+%  ecache:get(chatty_tree, TreeId).
 
 comment_tree_expire(TreeId) when is_list(TreeId) ->
   comment_tree_expire(list_to_binary(TreeId));
