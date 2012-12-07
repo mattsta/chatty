@@ -22,13 +22,21 @@
 %%%----------------------------------------------------------------------
 %%% Resolve a Comment Tree
 %%%----------------------------------------------------------------------
+comment_tree_json({TreeId, N}) when is_list(TreeId) ->
+  comment_tree_json({list_to_binary(TreeId), N});
 comment_tree_json(TreeId) when is_list(TreeId) ->
   comment_tree_json(list_to_binary(TreeId));
+comment_tree_json({TreeId, N}) when is_binary(TreeId) ->
+  ecache:get(chatty_tree_json, {TreeId, N});
 comment_tree_json(TreeId) when is_binary(TreeId) ->
   ecache:get(chatty_tree_json, TreeId).
 
+comment_tree_raw({TreeId, N}) when is_list(TreeId) ->
+  comment_tree_raw({list_to_binary(TreeId), N});
 comment_tree_raw(TreeId) when is_list(TreeId) ->
   comment_tree_raw(list_to_binary(TreeId));
+comment_tree_raw({TreeId, N}) when is_binary(TreeId) ->
+  ecache:get(chatty_tree, {TreeId, N});
 comment_tree_raw(TreeId) when is_binary(TreeId) ->
   ecache:get(chatty_tree, TreeId).
 
@@ -36,17 +44,23 @@ comment_tree_expire(TreeId) when is_list(TreeId) ->
   comment_tree_expire(list_to_binary(TreeId));
 comment_tree_expire(TreeId) when is_binary(TreeId) ->
   ecache:dirty(chatty_tree_json, TreeId),
-  ecache:dirty(chatty_tree, TreeId).
+  ecache:dirty(chatty_tree_json, {TreeId, 1}),  % only board entries
+  ecache:dirty(chatty_tree, TreeId),
+  ecache:dirty(chatty_tree, {TreeId, 1}).       % only board entries
 
+resolve_tree({TreeId, DepthLimit}) ->
+  PreTree = cghost:object_resolve_to_depth(TreeId, 2500, DepthLimit),
+  chatty:comment_tree_map(PreTree, fun(X) -> X end);
 resolve_tree(TreeId) ->
-  PreTree = cghost:object_resolve_to_height(TreeId, 1000),
-  chatty:comment_tree_map(PreTree, fun(X) -> X end).
+  resolve_tree({TreeId, 1000}).
 
-resolve_tree_json(TreeId) ->
-  PreTree = cghost:object_resolve_to_height(TreeId, 1000),
+resolve_tree_json({TreeId, DepthLimit}) ->
+  PreTree = cghost:object_resolve_to_depth(TreeId, 2500, DepthLimit),
   JsonMapTree = chatty:comment_tree_map(PreTree, fun node_to_map/1),
   Encoder = mochijson2:encoder([{utf8, true}]),
-  iolist_to_binary(Encoder(JsonMapTree)).
+  iolist_to_binary(Encoder(JsonMapTree));
+resolve_tree_json(TreeId) ->
+  resolve_tree_json({TreeId, 1000}).
 
 node_to_map({Key, Uid, TS, Replaced, VoteCount, CommentText, Children}) ->
   [{id, Key}, {uid, Uid}, {ts, TS}, {vc, VoteCount}, {text, CommentText},
