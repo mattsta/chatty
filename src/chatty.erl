@@ -122,8 +122,10 @@ comment_tree_map([{Key, VoteCount, Children} | T], Fun, Accum)
                        [] -> [];
                         _ -> comment_tree_map(Children, Fun)
                   end,
+      TotalChildren = cghost:'number-of-children'(Key),
       Transformed = Fun({Key, Uid, TS, ReplacedBy,
-                         VoteCount, md(CommentText), Childrens}),
+                         VoteCount, md(CommentText),
+                         TotalChildren, Childrens}),
       comment_tree_map(T, Fun, [Transformed | Accum])
   end;
 comment_tree_map([], _, Accum) when is_list(Accum) ->

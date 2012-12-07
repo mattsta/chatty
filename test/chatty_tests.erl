@@ -115,8 +115,8 @@ upvote_reply_to_reply_to_question_1() ->
 
 comment_tree() ->
   % courseA -> 4 -> 2 -> 5
-  CommentTreeJson = chatty:comments(courseA),
-  CommentTreeExpected = <<"[{\"id\":\"TE4\",\"uid\":\"userID\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"2\",\"text\":\"replacedCommentTextQuestion1\",\"replaced\":\"TE3\",\"children\":[{\"id\":\"TE2\",\"uid\":\"userID2\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"0\",\"text\":\"replyToQuestion1\",\"replaced\":[],\"children\":[{\"id\":\"TE5\",\"uid\":\"userID2\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"1\",\"text\":\"repToRplToQuestion1\",\"replaced\":[],\"children\":[]}]}]}]">>,
+  CommentTreeJson = chatty:comments(<<"courseA">>),
+  CommentTreeExpected = <<"[{\"id\":\"TE4\",\"uid\":\"userID\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"2\",\"text\":\"replacedCommentTextQuestion1\",\"replaced\":\"TE3\",\"tc\":0,\"children\":[{\"id\":\"TE2\",\"uid\":\"userID2\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"0\",\"text\":\"replyToQuestion1\",\"replaced\":[],\"tc\":1,\"children\":[{\"id\":\"TE5\",\"uid\":\"userID2\",\"ts\":\"2012-08-08T15:22:24Z\",\"vc\":\"1\",\"text\":\"repToRplToQuestion1\",\"replaced\":[],\"tc\":0,\"children\":[]}]}]}]">>,
   ?assertEqual(CommentTreeExpected, CommentTreeJson).
 
 create_question_2() ->
