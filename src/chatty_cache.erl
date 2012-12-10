@@ -91,6 +91,7 @@ top_n_json(BoardId, N, Fun) ->
   % Vote Counts aren't available here -- we'd have to look them up again,
   % but we don't really need them, do we?
   FormattedComments =[[{uid, Uid}, {ts, TS},
+                       {tc, cghost:'number-of-children'(Id)},
                        {text, chatty:md(Text)}, {id, Id}] ||
                       {Id, {Uid, TS, _, Text}} <- Comments],
   Encoder = mochijson2:encoder([{utf8, true}]),
